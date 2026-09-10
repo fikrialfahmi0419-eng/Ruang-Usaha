@@ -439,56 +439,7 @@ section_html(f"""
 # LOGIN & REGISTER PESERTA
 # ============================================================
 
-st.markdown(
-    """
-    <div style="
-        margin-top: 30px;
-        margin-bottom: 20px;
-        text-align: center;
-    ">
-        <div style="
-            display:inline-block;
-            padding:8px 14px;
-            border-radius:999px;
-            background:#e8f1ec;
-            color:#174d40;
-            font-size:11px;
-            font-weight:800;
-            letter-spacing:.06em;
-            text-transform:uppercase;
-        ">
-            Area Peserta
-        </div>
-
-        <h2 style="
-            color:#174d40;
-            font-family:'Plus Jakarta Sans',sans-serif;
-            margin:12px 0 6px;
-        ">
-            Bergabung Bersama Ruang Usaha
-        </h2>
-
-        <p style="
-            color:#68746f;
-            font-size:14px;
-            margin:0;
-        ">
-            Masuk untuk mengikuti program atau daftar sebagai peserta baru.
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-login_col, register_col = st.columns(2, gap="large")
-
-# ============================================================
-# LOGIN
-# ============================================================
-
-with login_col:
-
-  st.html(
+st.html(
     """
     <div style="
         background:#ffffff;
@@ -522,6 +473,46 @@ with login_col:
     </div>
     """
 )
+    unsafe_allow_html=True
+)
+
+login_col, register_col = st.columns(2, gap="large")
+
+# ============================================================
+# LOGIN
+# ============================================================
+
+with login_col:
+
+    st.html(
+        """
+        <div style="
+            background:#ffffff;
+            border:1px solid #deddd4;
+            border-radius:20px;
+            padding:25px;
+            margin-bottom:15px;
+        ">
+            <div style="font-size:28px;">🔐</div>
+
+            <h3 style="
+                color:#174d40;
+                margin:8px 0 5px;
+            ">
+                Login Peserta
+            </h3>
+
+            <p style="
+                color:#68746f;
+                font-size:13px;
+                margin:0;
+            ">
+                Sudah memiliki akun? Silakan masuk.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     with st.form("login_form"):
 
@@ -579,7 +570,7 @@ with login_col:
 
 with register_col:
 
-    st.markdown(
+    st.html(
         """
         <div style="
             background:#174d40;
