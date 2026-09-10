@@ -751,6 +751,11 @@ div[data-testid="stCaptionContainer"] p {
     }
 }
 
+
+/* Anchor offset */
+section, .hero, #profil, #layanan, #target, #operasional, #digital, #harga {
+    scroll-margin-top: 30px;
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -767,7 +772,7 @@ logo = (
     else '<span style="font-size:40px">🌱</span>'
 )
 
-st.markdown(
+st.html(
     f"""
 <div class="ru-topbar">
     Program Ruang Usaha
@@ -797,7 +802,6 @@ st.markdown(
     </div>
 </div>
 """,
-    unsafe_allow_html=True,
 )
 
 
@@ -806,7 +810,7 @@ st.markdown(
 # LOGIN / REGISTER
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <div style="
     margin-top:24px;
@@ -847,14 +851,13 @@ st.markdown(
         Akses kelas, pendampingan, komunitas, dan informasi kegiatan Ruang Usaha.
     </p>
 </div>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 login_col, register_col = st.columns(2, gap="large")
 
 with login_col:
-    st.markdown(
+    st.html(
         """
 <div style="
     background:#ffffff;
@@ -869,8 +872,7 @@ with login_col:
         Masuk menggunakan email atau nomor WhatsApp.
     </p>
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
     with st.form("login_form", clear_on_submit=False):
@@ -904,7 +906,7 @@ with login_col:
 
 
 with register_col:
-    st.markdown(
+    st.html(
         """
 <div style="
     background:#174d40;
@@ -918,8 +920,7 @@ with register_col:
         Bergabung sebagai peserta Ruang Usaha.
     </p>
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
     with st.form("register_form", clear_on_submit=False):
@@ -984,7 +985,7 @@ with register_col:
             )
 
 if st.session_state.logged_in:
-    st.markdown(
+    st.html(
         f"""
 <div style="
     margin:5px 0 28px;
@@ -998,8 +999,7 @@ if st.session_state.logged_in:
     👋 Kamu sedang masuk sebagai <b>{clean(st.session_state.user_name)}</b>.
     Login pada versi ini masih bersifat simulasi.
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
     if st.button("Keluar dari akun", key="logout_top"):
@@ -1011,12 +1011,12 @@ if st.session_state.logged_in:
 # HERO
 # ============================================================
 
-st.markdown('<section id="beranda" class="ru-hero">', unsafe_allow_html=True)
+st.html('<section id="beranda" class="ru-hero">', unsafe_allow_html=True)
 
 c1, c2 = st.columns([1.5, .8], gap="large")
 
 with c1:
-    st.markdown(
+    st.html(
         """
 <div class="ru-eyebrow">Jasa layanan kelas & pendampingan UMKM</div>
 
@@ -1032,8 +1032,7 @@ tetapi diarahkan untuk langsung diterapkan pada usaha masing-masing.
 ✓ Kelas &nbsp;&nbsp; ✓ Pendampingan &nbsp;&nbsp; ✓ Curhat Usaha
 &nbsp;&nbsp; ✓ Praktik langsung &nbsp;&nbsp; ✓ Komunitas
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
     b1, b2 = st.columns(2)
@@ -1044,7 +1043,7 @@ tetapi diarahkan untuk langsung diterapkan pada usaha masing-masing.
 
 with c2:
     if LOGO_RUANG:
-        st.markdown(
+        st.html(
             f"""
 <div class="ru-logo-hero">
     <img src="{LOGO_RUANG}" alt="Logo Ruang Usaha">
@@ -1060,7 +1059,7 @@ st.markdown("</section>", unsafe_allow_html=True)
 # RINGKASAN
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <div class="ru-stats">
     <div class="ru-stat">
@@ -1080,8 +1079,7 @@ st.markdown(
         <span>Interval kegiatan pembelajaran</span>
     </div>
 </div>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 
@@ -1089,12 +1087,11 @@ st.markdown(
 # PROFIL
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section id="profil" class="ru-section">
 <div class="ru-label">BAB II • Gambaran Umum Usaha</div>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 a1, a2 = st.columns([1, 1.15], gap="large")
@@ -1108,7 +1105,7 @@ with a1:
     )
 
 with a2:
-    st.markdown(
+    st.html(
         """
 <div class="ru-copy">
 <p>
@@ -1126,8 +1123,7 @@ Pendekatannya menggabungkan <b>kelas, diskusi, pendampingan, praktik langsung,
 Curhat Usaha, dan komunitas</b>, dengan dukungan teknologi digital.
 </p>
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
 st.markdown("</section>", unsafe_allow_html=True)
@@ -1154,7 +1150,7 @@ profil_cards = [
 
 for col, (num, title, desc) in zip([p1, p2, p3], profil_cards):
     with col:
-        st.markdown(
+        st.html(
             f"""
 <div class="ru-card">
     <div class="ru-card-number">{num}</div>
@@ -1170,7 +1166,7 @@ for col, (num, title, desc) in zip([p1, p2, p3], profil_cards):
 # LAYANAN
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section id="layanan" class="ru-section ru-soft">
 <div class="ru-label">Konsep & Layanan Usaha</div>
@@ -1178,8 +1174,7 @@ st.markdown(
 <p class="ru-copy">
 Berdasarkan proposal terbaru, Ruang Usaha memiliki lima layanan utama.
 </p>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 services = [
@@ -1225,7 +1220,7 @@ service_cols = st.columns(3)
 for i, (num, title, desc, tag, featured) in enumerate(services):
     with service_cols[i % 3]:
         cls = "ru-service featured" if featured else "ru-service"
-        st.markdown(
+        st.html(
             f"""
 <div class="{cls}">
     <div class="ru-service-number">{num}</div>
@@ -1240,7 +1235,7 @@ for i, (num, title, desc, tag, featured) in enumerate(services):
 st.markdown("<br>", unsafe_allow_html=True)
 
 with st.container():
-    st.markdown(
+    st.html(
         """
 <div class="ru-service">
     <div class="ru-service-number">SPECIAL SESSION</div>
@@ -1252,8 +1247,7 @@ with st.container():
     </p>
     <span class="ru-tag">Masalah nyata → diskusi → solusi → praktik</span>
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
 st.markdown("</section>", unsafe_allow_html=True)
@@ -1263,7 +1257,7 @@ st.markdown("</section>", unsafe_allow_html=True)
 # TARGET PASAR
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section id="target" class="ru-section">
 <div class="ru-label">Target Pasar</div>
@@ -1271,8 +1265,7 @@ st.markdown(
 <p class="ru-copy">
 Target peserta disesuaikan dengan kebutuhan pelaku usaha pada tahap yang berbeda.
 </p>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 targets = [
@@ -1306,7 +1299,7 @@ target_cols = st.columns(3)
 
 for i, (title, desc) in enumerate(targets):
     with target_cols[i % 3]:
-        st.markdown(
+        st.html(
             f"""
 <div class="ru-card">
     <div class="ru-card-number">TARGET {i+1:02}</div>
@@ -1324,7 +1317,7 @@ st.markdown("</section>", unsafe_allow_html=True)
 # OPERASIONAL / JADWAL PEMBELAJARAN
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section id="operasional" class="ru-section ru-soft">
 <div class="ru-label">BAB IV • Rencana Operasional</div>
@@ -1333,8 +1326,7 @@ st.markdown(
 Kegiatan dilakukan secara berkala setiap lima hari sekali. Satu pertemuan memiliki
 satu topik utama yang dapat disesuaikan dengan kebutuhan dan masalah peserta.
 </p>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 steps = [
@@ -1349,7 +1341,7 @@ steps = [
 ]
 
 for no, title, desc in steps:
-    st.markdown(
+    st.html(
         f"""
 <div class="ru-step">
     <div class="ru-step-no">{no}</div>
@@ -1358,11 +1350,10 @@ for no, title, desc in steps:
         <p>{desc}</p>
     </div>
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
-st.markdown(
+st.html(
     """
 <div class="ru-card" style="margin-top:25px;">
 <h3>Contoh praktik yang dilakukan peserta</h3>
@@ -1375,8 +1366,7 @@ st.markdown(
 ✓ Melakukan evaluasi sederhana terhadap usaha
 </p>
 </div>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 st.markdown("</section>", unsafe_allow_html=True)
@@ -1386,7 +1376,7 @@ st.markdown("</section>", unsafe_allow_html=True)
 # WEBSITE & MEDIA PENDUKUNG
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section id="digital" class="ru-section">
 <div class="ru-label">Website & Media Pendukung</div>
@@ -1395,8 +1385,7 @@ st.markdown(
 Website menjadi pusat informasi resmi, sementara platform lain memiliki fungsi
 masing-masing dalam komunikasi, pembelajaran, dokumentasi, dan promosi.
 </p>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 digital = [
@@ -1413,7 +1402,7 @@ dcols = st.columns(4)
 
 for i, (icon, title, desc, link) in enumerate(digital):
     with dcols[i % 4]:
-        st.markdown(
+        st.html(
             f"""
 <div class="ru-digital">
     <div class="ru-digital-icon">{icon}</div>
@@ -1438,19 +1427,18 @@ st.markdown("</section>", unsafe_allow_html=True)
 # HARGA
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section id="harga" class="ru-section ru-soft">
 <div class="ru-label">Strategi Harga</div>
 <h2>Pembelajaran yang tetap <em>terjangkau.</em></h2>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 price1, price2 = st.columns(2, gap="large")
 
 with price1:
-    st.markdown(
+    st.html(
         """
 <div class="ru-price">
     <div class="ru-label">Harga Normal</div>
@@ -1460,12 +1448,11 @@ with price1:
         dengan jenis materi, kegiatan, dan bentuk pendampingan.
     </div>
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
 with price2:
-    st.markdown(
+    st.html(
         """
 <div class="ru-price">
     <div class="ru-label">Promo Pengguna Awal</div>
@@ -1477,11 +1464,10 @@ with price2:
         Harga promo yang tercantum dalam proposal: <b>Rp50.000</b>
     </div>
 </div>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
-st.markdown(
+st.html(
     """
 <div class="ru-card" style="margin-top:20px;">
 <h3>Promo pengguna awal</h3>
@@ -1492,8 +1478,7 @@ materi dan pendampingan, kebutuhan keberlanjutan usaha, serta tujuan agar
 pembelajaran dapat diakses oleh lebih banyak pelaku UMKM.
 </p>
 </div>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 st.markdown("</section>", unsafe_allow_html=True)
@@ -1503,13 +1488,12 @@ st.markdown("</section>", unsafe_allow_html=True)
 # KEUNGGULAN
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section class="ru-section">
 <div class="ru-label">Keunggulan Ruang Usaha</div>
 <h2>Lebih dari sekadar <em>pelatihan bisnis.</em></h2>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 advantages = [
@@ -1525,7 +1509,7 @@ acols = st.columns(3)
 
 for i, (title, desc) in enumerate(advantages):
     with acols[i % 3]:
-        st.markdown(
+        st.html(
             f"""
 <div class="ru-card">
     <div class="ru-card-number">{i+1:02}</div>
@@ -1543,7 +1527,7 @@ st.markdown("</section>", unsafe_allow_html=True)
 # STRUKTUR ORGANISASI
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section class="ru-section ru-soft">
 <div class="ru-label">Struktur Organisasi</div>
@@ -1552,8 +1536,7 @@ st.markdown(
 Pada tahap awal, struktur dibuat sederhana untuk menjaga efisiensi biaya.
 Tiga fungsi utama menjalankan pengelolaan, pembelajaran, serta operasional dan digital.
 </p>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 orgs = [
@@ -1578,7 +1561,7 @@ ocols = st.columns(3)
 
 for col, (num, title, desc) in zip(ocols, orgs):
     with col:
-        st.markdown(
+        st.html(
             f"""
 <div class="ru-card">
     <div class="ru-card-number">{num}</div>
@@ -1596,7 +1579,7 @@ st.markdown("</section>", unsafe_allow_html=True)
 # CTA
 # ============================================================
 
-st.markdown(
+st.html(
     """
 <section class="ru-section">
 <div class="ru-cta">
@@ -1608,8 +1591,7 @@ praktikkan materi, dan berkembang bersama komunitas Ruang Usaha.
 </p>
 </div>
 </section>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 c1, c2, c3 = st.columns(3)
@@ -1634,9 +1616,10 @@ with c3:
         LINKS["https://www.instagram.com/ruangusaha_109?stkn=MWNtaHY0ZWN4YXdhYw=="],
         use_container_width=True,
     )
+
 with c4:
     st.link_button(
-        "▶️ gabung Zoom",
+        "▶️ Zoom",
         LINKS["https://us05web.zoom.us/j/3799765498?pwd=Y16zpswb0ymqkgTa1U46jCrn4YlVkX.1"],
         use_container_width=True,
     )
@@ -1651,7 +1634,7 @@ unimed = (
     else ""
 )
 
-st.markdown(
+st.html(
     f"""
 <footer class="ru-footer">
 
@@ -1676,6 +1659,5 @@ Jasa layanan kelas dan pendampingan bisnis bagi pelaku UMKM dan calon wirausaha.
 </div>
 
 </footer>
-""",
-    unsafe_allow_html=True,
+"""
 )
