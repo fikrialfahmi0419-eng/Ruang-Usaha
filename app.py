@@ -706,7 +706,7 @@ c1,c2,c3,c4 = st.columns(4)
 with c1:
     st.link_button("💬 WhatsApp", "https://wa.me/", use_container_width=True)
 with c2:
-    st.link_button("💻 Zoom", "https://zoom.us/", use_container_width=True)
+    st.link_button("💻 Zoom", "https://us05web.zoom.us/j/3799765498?pwd=Y16zpswb0ymqkgTa1U46jCrn4YlVkX.1", use_container_width=True)
 with c3:
     st.link_button("▶️ YouTube", "https://www.youtube.com/", use_container_width=True)
 with c4:
