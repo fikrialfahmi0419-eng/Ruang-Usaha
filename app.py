@@ -488,35 +488,40 @@ login_col, register_col = st.columns(2, gap="large")
 
 with login_col:
 
-    st.markdown(
-        """
+  st.html(
+    """
+    <div style="
+        background:#ffffff;
+        padding:25px;
+        border-radius:20px;
+    ">
         <div style="
-            background:#ffffff;
-            border:1px solid #deddd4;
-            border-radius:20px;
-            padding:25px;
-            margin-bottom:15px;
+            display:inline-block;
+            padding:7px 12px;
+            background:#e8f1ec;
+            color:#174d40;
+            border-radius:999px;
+            font-weight:800;
         ">
-            <div style="font-size:28px;">🔐</div>
-
-            <h3 style="
-                color:#174d40;
-                margin:8px 0 5px;
-            ">
-                Login Peserta
-            </h3>
-
-            <p style="
-                color:#68746f;
-                font-size:13px;
-                margin:0;
-            ">
-                Sudah memiliki akun? Silakan masuk.
-            </p>
+            AREA PESERTA
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+
+        <h2 style="
+            color:#174d40;
+            margin:12px 0 6px;
+        ">
+            Bergabung Bersama Ruang Usaha
+        </h2>
+
+        <p style="
+            color:#68746f;
+            margin:0;
+        ">
+            Masuk untuk mengikuti program atau daftar sebagai peserta baru.
+        </p>
+    </div>
+    """
+)
 
     with st.form("login_form"):
 
