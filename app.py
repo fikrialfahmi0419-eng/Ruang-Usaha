@@ -395,6 +395,105 @@ footer { visibility: hidden; }
     .steps { grid-template-columns: repeat(2,1fr); }
     .section-soft { padding: 28px 20px; }
 }
+
+/* ============================================================
+   STYLING WIDGET NATIVE STREAMLIT (Login/Daftar, dsb)
+   Supaya menyatu dengan tema krem-hijau, bukan tema gelap default
+   ============================================================ */
+
+/* Expander "Login / Daftar Peserta" */
+div[data-testid="stExpander"] {
+    background: #fff;
+    border: 1px solid #e4e2da;
+    border-radius: 19px;
+    overflow: hidden;
+    margin: 10px 0 20px;
+}
+div[data-testid="stExpander"] summary {
+    background: #edf3ef !important;
+    padding: 14px 18px;
+}
+div[data-testid="stExpander"] summary span,
+div[data-testid="stExpander"] summary p {
+    color: #174d40 !important;
+    font-weight: 700 !important;
+}
+div[data-testid="stExpander"] > div {
+    background: #fff;
+    padding: 20px 18px;
+}
+
+/* Semua label & teks di dalam widget form */
+div[data-testid="stExpander"] label,
+div[data-testid="stExpander"] p,
+div[data-testid="stExpander"] span {
+    color: #17352e !important;
+}
+
+/* Input teks & password */
+div[data-testid="stTextInput"] input {
+    background: #f8f6ef !important;
+    border: 1px solid #cfd6cf !important;
+    border-radius: 10px !important;
+    color: #17352e !important;
+}
+div[data-testid="stTextInput"] input:focus {
+    border-color: #174d40 !important;
+    box-shadow: 0 0 0 1px #174d40 !important;
+}
+
+/* Selectbox (Kategori Peserta) */
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+    background: #f8f6ef !important;
+    border: 1px solid #cfd6cf !important;
+    border-radius: 10px !important;
+    color: #17352e !important;
+}
+
+/* Radio (Login / Daftar) */
+div[data-testid="stRadio"] label span {
+    color: #17352e !important;
+}
+
+/* Checkbox (persetujuan) */
+div[data-testid="stCheckbox"] label span {
+    color: #17352e !important;
+}
+
+/* Tombol umum (Masuk, Daftar, Keluar) */
+.stButton button {
+    background: #174d40 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+.stButton button:hover {
+    background: #123c32 !important;
+    color: #fff !important;
+}
+
+/* Tombol link platform (WhatsApp, Zoom, dst) */
+.stLinkButton a {
+    background: #174d40 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px !important;
+}
+.stLinkButton a:hover {
+    background: #123c32 !important;
+}
+
+/* Alert bawaan Streamlit (error, success, warning) biar tidak nabrak tema gelap */
+div[data-testid="stAlert"] {
+    border-radius: 12px !important;
+}
+
+/* Heading "Akses Platform Ruang Usaha" biar konsisten dgn section-title lain */
+h3 {
+    color: #174d40;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
 </style>
 """,
     unsafe_allow_html=True,
