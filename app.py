@@ -1047,8 +1047,7 @@ with c2:
 <div class="ru-logo-hero">
     <img src="{LOGO_RUANG}" alt="Logo Ruang Usaha">
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )
 
 st.markdown("</section>")
@@ -1155,8 +1154,7 @@ for col, (num, title, desc) in zip([p1, p2, p3], profil_cards):
     <h3>{title}</h3>
     <p>{desc}</p>
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )
 
 
@@ -1226,8 +1224,7 @@ for i, (num, title, desc, tag, featured) in enumerate(services):
     <p>{desc}</p>
     <span class="ru-tag">{tag}</span>
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )
 
 st.markdown("<br>")
@@ -1304,8 +1301,7 @@ for i, (title, desc) in enumerate(targets):
     <h3>{title}</h3>
     <p>{desc}</p>
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )
 
 st.markdown("</section>")
@@ -1407,8 +1403,7 @@ for i, (icon, title, desc, link) in enumerate(digital):
     <h3>{title}</h3>
     <p>{desc}</p>
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )
 
         if link and link != "#":
@@ -1514,8 +1509,7 @@ for i, (title, desc) in enumerate(advantages):
     <h3>{title}</h3>
     <p>{desc}</p>
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )
 
 st.markdown("</section>")
@@ -1566,8 +1560,7 @@ for col, (num, title, desc) in zip(ocols, orgs):
     <h3>{title}</h3>
     <p>{desc}</p>
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )
 
 st.markdown("</section>")
