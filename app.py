@@ -1,11 +1,11 @@
 import streamlit as st
 from pathlib import Path
 import base64
+import html
 
 # ============================================================
-# RUANG USAHA
-# Berdasarkan Proposal Bisnis terbaru - Kelompok 3
-# Konsep: "Belajar, Berbagi, dan Bertumbuh Bersama"
+# RUANG USAHA — STREAMLIT APP
+# Versi bersih: tidak menampilkan kode HTML sebagai teks
 # ============================================================
 
 st.set_page_config(
@@ -15,764 +15,395 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-BASE_DIR = Path(__file__).parent
-
-# ============================================================
-# LINK PLATFORM
-# GANTI DENGAN LINK ASLI RUANG USAHA
-# ============================================================
-
-LINKS = {
-    "whatsapp": "https://chat.whatsapp.com/Bew1bpB1vxYGge8z1PMmrX",
-    "zoom": "https://us05web.zoom.us/j/3799765498?pwd=Y16zpswb0ymqkgTa1U46jCrn4YlVkX.1",
-    "youtube": "https://youtube.com/@ruangusaha-q1g?si=jITpG2S7u1uLwUE1",
-    "instagram": "https://www.instagram.com/ruangusaha_109?stkn=MWNtaHY0ZWN4YXdhYw==",
-    "tiktok": "https://tiktok.com/",
-    "facebook": "https://facebook.com/",
-}
-
-# ============================================================
-# ASSET
-# Mendukung folder Assets maupun assets
-# ============================================================
-
+# ------------------------------------------------------------
+# Helper
+# ------------------------------------------------------------
 def find_asset(filename):
-    possible = [
-        BASE_DIR / "Assets" / filename,
-        BASE_DIR / "assets" / filename,
-        BASE_DIR / filename,
+    """Mencari file aset dengan nama yang sama tanpa peduli huruf besar/kecil."""
+    roots = [
+        Path("."),
+        Path("Assets"),
+        Path("assets"),
+        Path("/workspaces/Ruang-Usaha"),
+        Path("/workspaces/Ruang-Usaha/Assets"),
+        Path("/workspaces/Ruang-Usaha/assets"),
     ]
-
-    for item in possible:
-        if item.exists():
-            return item
-
-    for item in BASE_DIR.rglob("*"):
-        if item.is_file() and item.name.lower() == filename.lower():
-            return item
-
+    target = filename.lower()
+    for root in roots:
+        try:
+            if root.is_file() and root.name.lower() == target:
+                return root
+            if root.exists():
+                for p in root.rglob("*"):
+                    if p.is_file() and p.name.lower() == target:
+                        return p
+        except Exception:
+            pass
     return None
 
 
-def get_image_data(filename):
-    path = find_asset(filename)
-    if not path:
+def image_data_uri(filename):
+    p = find_asset(filename)
+    if not p:
+        return ""
+    try:
+        mime = "image/png" if p.suffix.lower() == ".png" else "image/jpeg"
+        data = base64.b64encode(p.read_bytes()).decode("utf-8")
+        return f"data:{mime};base64,{data}"
+    except Exception:
         return ""
 
-    mime = {
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".webp": "image/webp",
-    }.get(path.suffix.lower(), "image/png")
 
-    encoded = base64.b64encode(path.read_bytes()).decode("utf-8")
-    return f"data:{mime};base64,{encoded}"
+def clean(text):
+    return html.escape(str(text))
 
 
-LOGO_RUANG = get_image_data("logo-ruang-usaha.png")
-LOGO_UNIMED = get_image_data("logo-unimed.png")
+def section_html(content):
+    """Render satu blok HTML lengkap. Tidak pernah membuka/menutup tag
+    pada st.markdown yang berbeda."""
+    st.html(content)
 
 
-# ============================================================
-# SESSION
-# ============================================================
+LOGO_RUANG = image_data_uri("logo-ruang-usaha.png")
+LOGO_UNIMED = image_data_uri("logo-unimed.png")
 
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if "user_name" not in st.session_state:
-    st.session_state.user_name = ""
-
+if LOGO_RUANG:
+    logo_html = f'<img src="{LOGO_RUANG}" alt="Logo Ruang Usaha">'
+else:
+    logo_html = '<div class="logo-fallback">🌱</div>'
 
 # ============================================================
 # CSS
 # ============================================================
-
 st.markdown(
     """
 <style>
-
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
 
-:root {
-    --green: #174d40;
-    --green-dark: #10392f;
-    --green-light: #e8f1ec;
-    --cream: #f8f6ef;
-    --gold: #c68c43;
-    --text: #17352e;
-    --muted: #68746f;
-    --line: #deddd4;
-    --white: #ffffff;
-}
-
+html { scroll-behavior: smooth; }
 .stApp {
-    background: var(--cream);
-    color: var(--text);
-    font-family: "DM Sans", sans-serif;
+    background: #f8f6ef;
+    color: #17352e;
+    font-family: 'DM Sans', sans-serif;
 }
-
 .block-container {
-    max-width: 1450px !important;
-    padding: 0 5vw 4rem !important;
+    max-width: 1250px;
+    padding-top: 1rem;
+    padding-bottom: 3rem;
 }
-
-[data-testid="stHeader"] {
-    background: transparent;
-}
-
-[data-testid="stToolbar"],
-footer {
-    display: none !important;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-/* ---------------- TOP BAR ---------------- */
+[data-testid="stHeader"] { background: transparent; }
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
 
 .ru-topbar {
-    margin: 0 -5vw;
-    padding: 10px 5vw;
-    background: var(--green);
-    color: white;
+    background: #174d40;
+    color: #fff;
+    padding: 12px 18px;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 24px;
 }
-
-.ru-topbar b {
-    color: #f2d092;
-}
-
-/* ---------------- HEADER ---------------- */
+.ru-topbar b { color: #f2c36b; }
 
 .ru-header {
-    padding: 20px 0;
-    border-bottom: 1px solid var(--line);
+    background: rgba(248,246,239,.96);
+    padding: 10px 0 20px;
 }
-
 .ru-header-inner {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    gap: 30px;
+    gap: 25px;
 }
-
 .ru-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.ru-brand img {
-    width: 55px;
-    height: 55px;
-    object-fit: contain;
-}
-
-.ru-brand-name {
-    font-family: "Plus Jakarta Sans", sans-serif;
-    color: var(--green);
-    font-size: 22px;
-    font-weight: 800;
-}
-
-.ru-brand-tagline {
-    color: var(--muted);
-    font-size: 11px;
-    margin-top: 2px;
-}
-
-.ru-nav {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-.ru-nav a {
-    color: #40534d;
-    text-decoration: none;
-    padding: 9px 12px;
-    border-radius: 9px;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.ru-nav a:hover {
-    background: var(--green-light);
-    color: var(--green);
-}
-
-/* ---------------- HERO ---------------- */
-
-.ru-hero {
-    margin-top: 34px;
-    padding: 70px 7%;
-    border-radius: 30px;
-    background: var(--green);
-    color: white;
-}
-
-.ru-eyebrow {
-    display: inline-block;
-    background: #e1eee7;
-    color: var(--green);
-    padding: 8px 13px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 800;
-    margin-bottom: 20px;
-}
-
-.ru-hero h1 {
-    font-family: "Plus Jakarta Sans", sans-serif;
-    color: white;
-    font-size: clamp(40px, 5vw, 70px);
-    line-height: 1.05;
-    margin: 0 0 20px;
-}
-
-.ru-hero h1 em {
-    color: #e2b35f;
-    font-style: normal;
-}
-
-.ru-hero p {
-    color: #dce9e4;
-    font-size: 16px;
-    line-height: 1.8;
-    max-width: 760px;
-}
-
-.ru-hero-highlight {
-    margin-top: 20px;
-    color: #f1f5f2;
-    font-size: 13px;
-}
-
-.ru-logo-hero {
-    text-align: center;
-}
-
-.ru-logo-hero img {
-    width: min(100%, 390px);
-    max-height: 360px;
-    object-fit: contain;
-}
-
-/* ---------------- STATS ---------------- */
-
-.ru-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin: 20px 0 20px;
-}
-
-.ru-stat {
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 17px;
-    padding: 20px;
-}
-
-.ru-stat strong {
-    display: block;
-    color: var(--green);
-    font-family: "Plus Jakarta Sans", sans-serif;
-    font-size: 25px;
-}
-
-.ru-stat span {
-    color: var(--muted);
-    font-size: 12px;
-}
-
-/* ---------------- SECTIONS ---------------- */
-
-.ru-section {
-    padding: 80px 0;
-    scroll-margin-top: 30px;
-}
-
-.ru-soft {
-    margin-left: -5vw;
-    margin-right: -5vw;
-    padding-left: 5vw;
-    padding-right: 5vw;
-    background: #f0f3ed;
-}
-
-.ru-label {
-    color: var(--gold);
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: .09em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-}
-
-.ru-section h2 {
-    font-family: "Plus Jakarta Sans", sans-serif;
-    color: var(--green);
-    font-size: clamp(31px, 4vw, 48px);
-    line-height: 1.15;
-    margin: 0 0 18px;
-}
-
-.ru-section h2 em {
-    color: var(--gold);
-    font-style: normal;
-}
-
-.ru-copy {
-    color: var(--muted);
-    line-height: 1.85;
-    font-size: 14px;
-}
-
-/* ---------------- CARDS ---------------- */
-
-.ru-card {
-    height: 100%;
-    box-sizing: border-box;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 21px;
-    padding: 25px;
-}
-
-.ru-card-number {
-    color: var(--gold);
-    font-size: 12px;
-    font-weight: 900;
-}
-
-.ru-card h3 {
-    color: var(--green);
-    font-family: "Plus Jakarta Sans", sans-serif;
-    margin: 11px 0 8px;
-}
-
-.ru-card p {
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.7;
-}
-
-/* ---------------- SERVICES ---------------- */
-
-.ru-service {
-    height: 100%;
-    min-height: 270px;
-    box-sizing: border-box;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 21px;
-    padding: 25px;
-}
-
-.ru-service.featured {
-    background: var(--green);
-}
-
-.ru-service.featured h3,
-.ru-service.featured p {
-    color: white;
-}
-
-.ru-service-number {
-    color: var(--gold);
-    font-weight: 900;
-    font-size: 11px;
-}
-
-.ru-service h3 {
-    color: var(--green);
-    font-family: "Plus Jakarta Sans", sans-serif;
-    font-size: 17px;
-    line-height: 1.35;
-    margin: 14px 0 9px;
-}
-
-.ru-service p {
-    color: var(--muted);
-    line-height: 1.7;
-    font-size: 13px;
-}
-
-.ru-tag {
-    display: inline-block;
-    margin-top: 12px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 10px;
-    font-weight: 900;
-}
-
-/* ---------------- LEARNING STEPS ---------------- */
-
-.ru-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--line);
-}
-
-.ru-step-no {
-    min-width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: var(--green);
-    color: white;
-    font-size: 12px;
-    font-weight: 900;
-}
-
-.ru-step h3 {
-    color: var(--green);
-    font-family: "Plus Jakarta Sans", sans-serif;
-    font-size: 16px;
-    margin: 0 0 5px;
-}
-
-.ru-step p {
-    color: var(--muted);
-    margin: 0;
-    line-height: 1.65;
-    font-size: 13px;
-}
-
-/* ---------------- DIGITAL ---------------- */
-
-.ru-digital {
-    text-align: center;
-    min-height: 150px;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 20px 12px;
-}
-
-.ru-digital-icon {
-    font-size: 26px;
-    margin-bottom: 7px;
-}
-
-.ru-digital h3 {
-    color: var(--green);
-    margin: 0 0 5px;
-    font-size: 14px;
-}
-
-.ru-digital p {
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* ---------------- TARGET ---------------- */
-
-.ru-target {
-    background: var(--green);
-    border-radius: 28px;
-    padding: 55px 7%;
-}
-
-.ru-target h2 {
-    color: white;
-}
-
-.ru-target p {
-    color: #dce9e4;
-    line-height: 1.8;
-}
-
-.ru-target-item {
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(255,255,255,.15);
-    color: white;
-}
-
-/* ---------------- PRICE ---------------- */
-
-.ru-price {
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 25px;
-    padding: 35px;
-    text-align: center;
-}
-
-.ru-price-main {
-    color: var(--green);
-    font-family: "Plus Jakarta Sans", sans-serif;
-    font-size: 48px;
-    font-weight: 800;
-}
-
-.ru-price-note {
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.6;
-}
-
-/* ---------------- CTA ---------------- */
-
-.ru-cta {
-    padding: 55px;
-    text-align: center;
-    border-radius: 28px;
-    background: #e8efe9;
-}
-
-/* ---------------- FOOTER ---------------- */
-
-.ru-footer {
-    margin: 60px -5vw -4rem;
-    padding: 45px 5vw;
-    background: #10392f;
-    color: white;
-}
-
-.ru-footer-brand {
     display: flex;
     align-items: center;
     gap: 13px;
 }
-
-.ru-footer-brand img {
-    width: 55px;
-    height: 55px;
+.ru-brand img {
+    width: 58px;
+    height: 58px;
     object-fit: contain;
-}
-
-.ru-footer h3 {
-    color: white;
-    font-family: "Plus Jakarta Sans", sans-serif;
-    margin: 0;
-}
-
-.ru-footer p {
-    color: #cbdcd5;
-    font-size: 13px;
-    line-height: 1.7;
-}
-
-.ru-footer-unimed {
-    width: 65px;
-    height: 65px;
-    object-fit: contain;
-    background: white;
     border-radius: 12px;
-    padding: 4px;
+}
+.logo-fallback {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    font-size: 36px;
+}
+.ru-brand-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 27px;
+    color: #174d40;
+}
+.ru-brand-tagline {
+    color: #68746f;
+    font-size: 13px;
+    margin-top: 3px;
+}
+.ru-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 7px;
+}
+.ru-nav a {
+    color: #17352e;
+    text-decoration: none;
+    padding: 9px 11px;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 13px;
+}
+.ru-nav a:hover {
+    background: #e8f1ec;
+    color: #174d40;
 }
 
-.ru-footer-bottom {
-    border-top: 1px solid rgba(255,255,255,.15);
-    margin-top: 30px;
-    padding-top: 20px;
-    color: #b7cdc4;
-    font-size: 11px;
+.hero {
+    background: #174d40;
+    color: #fff;
+    border-radius: 28px;
+    padding: 62px 58px;
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.45fr .75fr;
+    gap: 40px;
+    align-items: center;
+}
+.eyebrow {
+    display: inline-block;
+    background: #e8f1ec;
+    color: #174d40;
+    padding: 9px 14px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+.hero h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(38px, 5vw, 66px);
+    line-height: 1.08;
+    margin: 0 0 20px;
+    color: #fff;
+}
+.hero h1 em { color: #f2c36b; font-style: normal; }
+.hero p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #e7f0eb;
+    max-width: 760px;
+}
+.hero-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 24px;
+}
+.hero-points span {
+    border: 1px solid rgba(255,255,255,.22);
+    padding: 8px 12px;
+    border-radius: 99px;
+    font-size: 13px;
+}
+.hero-logo {
+    background: #f8f6ef;
+    border-radius: 24px;
+    padding: 25px;
+    text-align: center;
+}
+.hero-logo img {
+    width: 100%;
+    max-width: 350px;
+    max-height: 310px;
+    object-fit: contain;
 }
 
-/* ---------------- STREAMLIT / LOGIN ---------------- */
-
-.stApp {
-    background: #f8f6ef !important;
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 16px;
+    margin: 20px 0 65px;
 }
-
-/* Tombol */
-div[data-testid="stButton"] > button,
-div[data-testid="stLinkButton"] a {
-    border-radius: 11px !important;
-    font-weight: 800 !important;
-    min-height: 45px !important;
+.stat {
+    background: #fff;
+    border: 1px solid #e4e2da;
+    border-radius: 18px;
+    padding: 24px;
 }
-
-div[data-testid="stButton"] > button {
-    background: #174d40 !important;
-    color: #ffffff !important;
-    border: 1px solid #174d40 !important;
+.stat strong {
+    display: block;
+    color: #174d40;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 29px;
 }
+.stat span { color: #68746f; font-size: 13px; }
 
-div[data-testid="stButton"] > button p {
-    color: #ffffff !important;
-}
-
-/* Expander login */
-div[data-testid="stExpander"] {
-    background: #ffffff !important;
-    border: 1px solid #dddcd4 !important;
-    border-radius: 18px !important;
-    overflow: hidden !important;
-    margin: 18px 0 30px !important;
-}
-
-div[data-testid="stExpander"] details {
-    background: #ffffff !important;
-}
-
-div[data-testid="stExpander"] summary {
-    background: #ffffff !important;
-    color: #17352e !important;
-    padding: 17px 19px !important;
-    border-bottom: 1px solid #e8e6de !important;
-}
-
-div[data-testid="stExpander"] summary *,
-div[data-testid="stExpander"] summary p,
-div[data-testid="stExpander"] summary span {
-    color: #17352e !important;
-    font-weight: 800 !important;
-}
-
-/* Semua label form */
-div[data-testid="stTextInput"] label,
-div[data-testid="stTextInput"] label *,
-div[data-testid="stSelectbox"] label,
-div[data-testid="stSelectbox"] label *,
-div[data-testid="stRadio"] label,
-div[data-testid="stRadio"] label *,
-div[data-testid="stCheckbox"] label,
-div[data-testid="stCheckbox"] label * {
-    color: #17352e !important;
-    font-weight: 700 !important;
-}
-
-/* Kolom text input BaseWeb */
-div[data-testid="stTextInput"] div[data-baseweb="input"] {
-    background: #ffffff !important;
-    border: 1.5px solid #d5ddd8 !important;
-    border-radius: 11px !important;
-    box-shadow: none !important;
-}
-
-div[data-testid="stTextInput"] div[data-baseweb="input"] > div {
-    background: #ffffff !important;
-}
-
-div[data-testid="stTextInput"] input {
-    background: #ffffff !important;
-    color: #17352e !important;
-    -webkit-text-fill-color: #17352e !important;
-    caret-color: #17352e !important;
-    font-size: 14px !important;
-    min-height: 45px !important;
-}
-
-div[data-testid="stTextInput"] input::placeholder {
-    color: #8b9791 !important;
-    -webkit-text-fill-color: #8b9791 !important;
-    opacity: 1 !important;
-}
-
-div[data-testid="stTextInput"] div[data-baseweb="input"]:focus-within {
-    border-color: #246b55 !important;
-    box-shadow: 0 0 0 3px rgba(36,107,85,.10) !important;
-}
-
-/* Selectbox */
-div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
-    background: #ffffff !important;
-    color: #17352e !important;
-    border: 1.5px solid #d5ddd8 !important;
-    border-radius: 11px !important;
-}
-
-div[data-testid="stSelectbox"] div[data-baseweb="select"] * {
-    color: #17352e !important;
-}
-
-/* Radio */
-div[data-testid="stRadio"] > div {
-    color: #17352e !important;
-}
-
-div[data-testid="stRadio"] label,
-div[data-testid="stRadio"] label p {
-    color: #17352e !important;
-}
-
-/* Checkbox */
-div[data-testid="stCheckbox"] label,
-div[data-testid="stCheckbox"] label p {
-    color: #17352e !important;
-}
-
-/* Success/error/caption */
-div[data-testid="stAlert"] {
-    border-radius: 11px !important;
-}
-
-div[data-testid="stCaptionContainer"] p {
-    color: #68746f !important;
-}
-
-@media (max-width: 900px) {
-    .ru-header-inner {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .ru-nav {
-        justify-content: flex-start;
-    }
-
-    .ru-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .ru-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .ru-hero {
-        padding: 45px 7%;
-    }
-
-    .ru-section {
-        padding: 55px 0;
-    }
-
-    .ru-cta {
-        padding: 35px 20px;
-    }
-}
-
-
-/* Anchor offset */
-section, .hero, #profil, #layanan, #target, #operasional, #digital, #harga {
+.section {
+    padding: 50px 0;
     scroll-margin-top: 30px;
 }
+.section-soft {
+    background: #edf3ef;
+    border-radius: 28px;
+    padding: 45px;
+    margin: 25px 0;
+}
+.section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 35px;
+    color: #174d40;
+    margin: 0 0 12px;
+}
+.section-title em { color: #c68c43; font-style: normal; }
+.section-desc {
+    color: #68746f;
+    line-height: 1.75;
+    max-width: 850px;
+}
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 17px;
+    margin-top: 28px;
+}
+.card {
+    background: #fff;
+    border: 1px solid #e4e2da;
+    border-radius: 19px;
+    padding: 24px;
+    min-height: 170px;
+}
+.card .icon { font-size: 30px; margin-bottom: 13px; }
+.card h3 {
+    margin: 0 0 9px;
+    color: #174d40;
+    font-size: 18px;
+}
+.card p {
+    margin: 0;
+    color: #68746f;
+    line-height: 1.65;
+    font-size: 14px;
+}
+
+.target-grid, .digital-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 14px;
+    margin-top: 25px;
+}
+.target-item, .digital-item {
+    background: #fff;
+    border: 1px solid #e4e2da;
+    border-radius: 16px;
+    padding: 18px;
+}
+.target-item b, .digital-item b { color: #174d40; }
+.target-item p, .digital-item span {
+    display: block;
+    color: #68746f;
+    margin: 7px 0 0;
+    line-height: 1.55;
+    font-size: 14px;
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 13px;
+    margin-top: 25px;
+}
+.step {
+    background: #fff;
+    border: 1px solid #e4e2da;
+    border-radius: 16px;
+    padding: 18px;
+}
+.step-number {
+    color: #c68c43;
+    font-weight: 800;
+    font-size: 13px;
+}
+.step h3 { color: #174d40; font-size: 16px; margin: 8px 0; }
+.step p { color: #68746f; font-size: 13px; line-height: 1.55; margin: 0; }
+
+.price-box {
+    background: #174d40;
+    color: #fff;
+    border-radius: 25px;
+    padding: 42px;
+    margin-top: 25px;
+}
+.price-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 35px;
+    align-items: center;
+}
+.price-label { color: #bcd5cb; font-size: 14px; }
+.price-main {
+    color: #f2c36b;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 47px;
+    font-weight: 800;
+    margin: 7px 0;
+}
+.price-note { color: #e6eee9; line-height: 1.7; }
+.price-note b { color: #fff; }
+.price-side {
+    background: rgba(255,255,255,.09);
+    border-radius: 18px;
+    padding: 22px;
+}
+.price-side h3 { margin-top: 0; color: #fff; }
+.price-side p { color: #d9e6e0; line-height: 1.6; font-size: 14px; }
+
+.footer {
+    border-top: 1px solid #dddcd4;
+    margin-top: 55px;
+    padding: 30px 0;
+    color: #68746f;
+}
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.footer-brand img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+.footer-brand b { color: #174d40; }
+.footer-logos { display:flex; align-items:center; gap:10px; }
+
+@media (max-width: 850px) {
+    .ru-header-inner, .hero-grid, .price-grid { grid-template-columns: 1fr; display:grid; }
+    .ru-header-inner { display:flex; flex-direction:column; align-items:flex-start; }
+    .ru-nav { justify-content:flex-start; }
+    .hero { padding: 38px 25px; }
+    .stats, .cards, .target-grid, .digital-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: repeat(2,1fr); }
+    .section-soft { padding: 28px 20px; }
+}
 </style>
-"""
+""",
+    unsafe_allow_html=True,
 )
 
-
 # ============================================================
-# TOP BAR + HEADER
+# TOP BAR + HEADER — satu blok HTML utuh
 # ============================================================
-
-logo = (
-    f'<img src="{LOGO_RUANG}" alt="Logo Ruang Usaha">'
-    if LOGO_RUANG
-    else '<span style="font-size:40px">🌱</span>'
-)
-
-st.html(
-    f"""
+section_html(f"""
 <div class="ru-topbar">
     Program Ruang Usaha
     <b>DISKON 30% UNTUK 50 PESERTA PERTAMA</b>
@@ -782,13 +413,12 @@ st.html(
 <div class="ru-header">
     <div class="ru-header-inner">
         <div class="ru-brand">
-            {logo}
+            {logo_html}
             <div>
                 <div class="ru-brand-name">Ruang Usaha</div>
                 <div class="ru-brand-tagline">Belajar, Berbagi, dan Bertumbuh Bersama</div>
             </div>
         </div>
-
         <div class="ru-nav">
             <a href="#beranda">Beranda</a>
             <a href="#profil">Profil</a>
@@ -800,855 +430,356 @@ st.html(
         </div>
     </div>
 </div>
-""",
-)
-
+""")
 
 # ============================================================
+# LOGIN / DAFTAR
 # ============================================================
-# LOGIN / REGISTER
-# ============================================================
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
 
-st.html(
-    """
-<div style="
-    margin-top:24px;
-    padding:28px 30px 8px;
-    background:#ffffff;
-    border:1px solid #e4e2da;
-    border-radius:22px 22px 0 0;
-">
-    <div style="
-        display:inline-block;
-        padding:7px 12px;
-        background:#e8f1ec;
-        color:#174d40;
-        border-radius:999px;
-        font-size:11px;
-        font-weight:800;
-        text-transform:uppercase;
-        letter-spacing:.05em;
-    ">
-        Area Peserta
-    </div>
-
-    <h2 style="
-        margin:13px 0 7px;
-        color:#174d40;
-        font-family:'Plus Jakarta Sans',sans-serif;
-        font-size:29px;
-    ">
-        Masuk atau Daftar di Ruang Usaha
-    </h2>
-
-    <p style="
-        margin:0 0 16px;
-        color:#68746f;
-        font-size:14px;
-        line-height:1.6;
-    ">
-        Akses kelas, pendampingan, komunitas, dan informasi kegiatan Ruang Usaha.
-    </p>
-</div>
-"""
-)
-
-login_col, register_col = st.columns(2, gap="large")
-
-with login_col:
-    st.html(
-        """
-<div style="
-    background:#ffffff;
-    border:1px solid #e4e2da;
-    border-radius:18px;
-    padding:22px 23px 10px;
-    margin-bottom:20px;
-">
-    <div style="font-size:25px;">🔐</div>
-    <h3 style="color:#174d40;margin:7px 0 4px;">Login Peserta</h3>
-    <p style="color:#68746f;font-size:13px;margin:0 0 15px;">
-        Masuk menggunakan email atau nomor WhatsApp.
-    </p>
-</div>
-"""
+with st.expander(
+    "👤 " + (
+        f"Peserta: {st.session_state.user_name}"
+        if st.session_state.logged_in
+        else "Login / Daftar Peserta"
     )
-
-    with st.form("login_form", clear_on_submit=False):
-        identity = st.text_input(
-            "Email / Nomor WhatsApp",
-            placeholder="contoh@email.com atau 08xxxxxxxxxx",
+):
+    if st.session_state.logged_in:
+        st.success(f"Selamat datang, {st.session_state.user_name}!")
+        st.caption(
+            "Login pada versi ini masih berupa simulasi. "
+            "Untuk akun permanen diperlukan database."
         )
-
-        password = st.text_input(
-            "Kata Sandi",
-            type="password",
-            placeholder="Masukkan kata sandi",
-        )
-
-        remember = st.checkbox("Ingat saya")
-
-        login_submit = st.form_submit_button(
-            "🔐 Masuk ke Ruang Usaha",
-            use_container_width=True,
-        )
-
-    if login_submit:
-        if not identity.strip():
-            st.error("Email atau nomor WhatsApp wajib diisi.")
-        elif len(password) < 6:
-            st.error("Kata sandi minimal 6 karakter.")
+        if st.button("Keluar", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.user_name = ""
+            st.rerun()
+    else:
+        mode = st.radio("Akun", ["Login", "Daftar"], horizontal=True)
+        if mode == "Login":
+            identity = st.text_input("Email / Nomor WhatsApp")
+            password = st.text_input("Kata Sandi", type="password")
+            if st.button("🔐 Masuk", use_container_width=True):
+                if not identity.strip():
+                    st.error("Email atau nomor WhatsApp wajib diisi.")
+                elif len(password) < 6:
+                    st.error("Kata sandi minimal 6 karakter.")
+                else:
+                    st.session_state.logged_in = True
+                    st.session_state.user_name = identity.split("@")[0]
+                    st.rerun()
         else:
-            st.session_state.logged_in = True
-            st.session_state.user_name = identity.split("@")[0]
-            st.success("Login berhasil. Selamat datang di Ruang Usaha!")
-
-
-with register_col:
-    st.html(
-        """
-<div style="
-    background:#174d40;
-    border-radius:18px;
-    padding:22px 23px 20px;
-    margin-bottom:20px;
-">
-    <div style="font-size:25px;">🚀</div>
-    <h3 style="color:#ffffff;margin:7px 0 4px;">Daftar Peserta</h3>
-    <p style="color:#dce9e4;font-size:13px;margin:0;">
-        Bergabung sebagai peserta Ruang Usaha.
-    </p>
-</div>
-"""
-    )
-
-    with st.form("register_form", clear_on_submit=False):
-        name = st.text_input(
-            "Nama Lengkap",
-            placeholder="Nama lengkap",
-        )
-
-        participant = st.selectbox(
-            "Kategori Peserta",
-            [
-                "Mahasiswa yang sedang menjalankan usaha",
-                "UMKM baru memulai usaha",
-                "UMKM yang sedang mengembangkan usaha",
-                "Pelaku usaha yang belum memiliki pencatatan keuangan",
-                "UMKM yang ingin meningkatkan pemasaran",
-                "Calon wirausaha",
-            ],
-        )
-
-        email = st.text_input(
-            "Email",
-            placeholder="contoh@email.com",
-        )
-
-        whatsapp = st.text_input(
-            "Nomor WhatsApp",
-            placeholder="08xxxxxxxxxx",
-        )
-
-        password_register = st.text_input(
-            "Kata Sandi",
-            type="password",
-            placeholder="Minimal 6 karakter",
-        )
-
-        agreement = st.checkbox(
-            "Saya menyetujui pendaftaran Ruang Usaha."
-        )
-
-        register_submit = st.form_submit_button(
-            "🚀 Buat Akun Peserta",
-            use_container_width=True,
-        )
-
-    if register_submit:
-        if len(name.strip()) < 3:
-            st.error("Nama lengkap wajib diisi.")
-        elif "@" not in email:
-            st.error("Masukkan email yang valid.")
-        elif len(whatsapp.strip()) < 9:
-            st.error("Nomor WhatsApp belum valid.")
-        elif len(password_register) < 6:
-            st.error("Kata sandi minimal 6 karakter.")
-        elif not agreement:
-            st.warning("Centang persetujuan pendaftaran terlebih dahulu.")
-        else:
-            st.session_state.logged_in = True
-            st.session_state.user_name = name.strip()
-            st.success(
-                f"Pendaftaran berhasil. Selamat datang, {name.strip()}!"
+            name = st.text_input("Nama Lengkap")
+            participant = st.selectbox(
+                "Kategori Peserta",
+                [
+                    "Mahasiswa yang sedang menjalankan usaha",
+                    "UMKM baru memulai usaha",
+                    "UMKM yang sedang mengembangkan usaha",
+                    "Pelaku usaha yang belum memiliki pencatatan keuangan",
+                    "UMKM yang ingin meningkatkan pemasaran",
+                    "Calon wirausaha",
+                ],
             )
+            email = st.text_input("Email")
+            whatsapp = st.text_input("Nomor WhatsApp")
+            password = st.text_input("Kata Sandi", type="password")
+            agreement = st.checkbox("Saya menyetujui pendaftaran Ruang Usaha.")
+            if st.button("🚀 Daftar", use_container_width=True):
+                if not name.strip() or not email.strip() or not whatsapp.strip():
+                    st.error("Nama, email, dan nomor WhatsApp wajib diisi.")
+                elif len(password) < 6:
+                    st.error("Kata sandi minimal 6 karakter.")
+                elif not agreement:
+                    st.warning("Centang persetujuan pendaftaran terlebih dahulu.")
+                else:
+                    st.session_state.logged_in = True
+                    st.session_state.user_name = name
+                    st.success(f"Pendaftaran berhasil. Selamat datang, {name}!")
+                    st.rerun()
 
-if st.session_state.logged_in:
-    st.html(
-        f"""
-<div style="
-    margin:5px 0 28px;
-    padding:13px 17px;
-    background:#e8f1ec;
-    border:1px solid #d1e2d9;
-    border-radius:12px;
-    color:#174d40;
-    font-size:13px;
-">
-    👋 Kamu sedang masuk sebagai <b>{clean(st.session_state.user_name)}</b>.
-    Login pada versi ini masih bersifat simulasi.
-</div>
-"""
-    )
-
-    if st.button("Keluar dari akun", key="logout_top"):
-        st.session_state.logged_in = False
-        st.session_state.user_name = ""
-        st.rerun()
-
-
+# ============================================================
 # HERO
 # ============================================================
-
-st.html('<section id="beranda" class="ru-hero">')
-
-c1, c2 = st.columns([1.5, .8], gap="large")
-
-with c1:
-    st.html(
-        """
-<div class="ru-eyebrow">Jasa layanan kelas & pendampingan UMKM</div>
-
-<h1>Belajar, Berbagi, dan <em>Bertumbuh Bersama.</em></h1>
-
-<p>
-Ruang Usaha hadir sebagai wadah pembelajaran dan pendampingan bisnis
-bagi pelaku UMKM maupun calon wirausaha. Materi tidak berhenti pada teori,
-tetapi diarahkan untuk langsung diterapkan pada usaha masing-masing.
-</p>
-
-<div class="ru-hero-highlight">
-✓ Kelas &nbsp;&nbsp; ✓ Pendampingan &nbsp;&nbsp; ✓ Curhat Usaha
-&nbsp;&nbsp; ✓ Praktik langsung &nbsp;&nbsp; ✓ Komunitas
-</div>
-"""
-    )
-
-    b1, b2 = st.columns(2)
-    with b1:
-        st.link_button("Lihat Layanan →", "#layanan", use_container_width=True)
-    with b2:
-        st.link_button("Cara Pembelajaran", "#operasional", use_container_width=True)
-
-with c2:
-    if LOGO_RUANG:
-        st.html(
-            f"""
-<div class="ru-logo-hero">
-    <img src="{LOGO_RUANG}" alt="Logo Ruang Usaha">
-</div>
-"""
-        )
-
-st.markdown("</section>")
-
-
-# ============================================================
-# RINGKASAN
-# ============================================================
-
-st.html(
-    """
-<div class="ru-stats">
-    <div class="ru-stat">
-        <strong>Rp150K</strong>
-        <span>Harga sekitar per kegiatan</span>
+section_html(f"""
+<section id="beranda" class="hero">
+    <div class="hero-grid">
+        <div>
+            <div class="eyebrow">Jasa Layanan Kelas & Pendampingan UMKM</div>
+            <h1>Belajar, Berbagi, dan <em>Bertumbuh Bersama.</em></h1>
+            <p>
+                Ruang Usaha merupakan wadah pembelajaran dan pendampingan bisnis
+                bagi UMKM, calon wirausaha, dan mahasiswa yang menjalankan usaha.
+                Pembelajaran diarahkan agar materi dapat langsung diterapkan
+                pada usaha masing-masing.
+            </p>
+            <div class="hero-points">
+                <span>✓ Kelas Bisnis</span>
+                <span>✓ Pendampingan</span>
+                <span>✓ Curhat Usaha</span>
+                <span>✓ Praktik Langsung</span>
+                <span>✓ Komunitas</span>
+            </div>
+        </div>
+        <div class="hero-logo">
+            {logo_html}
+        </div>
     </div>
-    <div class="ru-stat">
+</section>
+""")
+
+section_html("""
+<div class="stats">
+    <div class="stat">
+        <strong>Rp150.000</strong>
+        <span>Harga normal per kegiatan</span>
+    </div>
+    <div class="stat">
         <strong>30%</strong>
         <span>Diskon untuk 50 peserta pertama</span>
     </div>
-    <div class="ru-stat">
-        <strong>50</strong>
-        <span>Kuota pengguna awal</span>
-    </div>
-    <div class="ru-stat">
+    <div class="stat">
         <strong>5 Hari</strong>
-        <span>Interval kegiatan pembelajaran</span>
+        <span>Jadwal kegiatan sesuai konsep operasional</span>
     </div>
 </div>
-"""
-)
-
+""")
 
 # ============================================================
 # PROFIL
 # ============================================================
-
-st.html(
-    """
-<section id="profil" class="ru-section">
-<div class="ru-label">BAB II • Gambaran Umum Usaha</div>
-"""
-)
-
-a1, a2 = st.columns([1, 1.15], gap="large")
-
-with a1:
-    st.markdown(
-        """
-<h2>Wadah belajar yang <em>dekat dengan masalah nyata.</em></h2>
-"""
-    )
-
-with a2:
-    st.html(
-        """
-<div class="ru-copy">
-<p>
-Ruang Usaha merupakan layanan edukasi dan pendampingan bisnis yang bergerak
-dalam pengembangan kapasitas pelaku Usaha Mikro, Kecil, dan Menengah (UMKM).
-</p>
-
-<p>
-Ruang Usaha membantu masyarakat yang sedang memulai usaha maupun pelaku usaha
-yang ingin meningkatkan kemampuan dalam mengelola dan mengembangkan bisnisnya.
-</p>
-
-<p>
-Pendekatannya menggabungkan <b>kelas, diskusi, pendampingan, praktik langsung,
-Curhat Usaha, dan komunitas</b>, dengan dukungan teknologi digital.
-</p>
-</div>
-"""
-    )
-
-st.markdown("</section>")
-
-p1, p2, p3 = st.columns(3)
-
-profil_cards = [
-    (
-        "01",
-        "Visi",
-        "Menjadi wadah pembelajaran dan pendampingan bisnis berbasis digital yang membantu pelaku UMKM mengelola serta mengembangkan usaha secara mandiri, terarah, dan berkelanjutan.",
-    ),
-    (
-        "02",
-        "Pembelajaran Praktis",
-        "Materi disampaikan dengan bahasa sederhana dan disertai praktik sehingga peserta dapat menerapkannya pada usaha masing-masing.",
-    ),
-    (
-        "03",
-        "Berbasis Komunitas",
-        "Peserta dapat berbagi pengalaman, berdiskusi, menyampaikan kendala, dan menemukan solusi bersama mentor maupun pelaku usaha lain.",
-    ),
-]
-
-for col, (num, title, desc) in zip([p1, p2, p3], profil_cards):
-    with col:
-        st.html(
-            f"""
-<div class="ru-card">
-    <div class="ru-card-number">{num}</div>
-    <h3>{title}</h3>
-    <p>{desc}</p>
-</div>
-"""
-        )
-
+section_html("""
+<section id="profil" class="section">
+    <h2 class="section-title">Tentang <em>Ruang Usaha</em></h2>
+    <p class="section-desc">
+        Ruang Usaha hadir sebagai layanan edukasi dan pendampingan bisnis yang
+        menggabungkan pembelajaran, praktik, konsultasi, komunitas, dan dukungan
+        digital. Tujuannya membantu peserta memahami usaha secara lebih terarah
+        dan menerapkan materi pada kondisi usahanya sendiri.
+    </p>
+    <div class="cards">
+        <div class="card">
+            <div class="icon">🎯</div>
+            <h3>Pembelajaran Praktis</h3>
+            <p>Materi bisnis disampaikan dengan pendekatan yang mudah dipahami dan diarahkan pada praktik.</p>
+        </div>
+        <div class="card">
+            <div class="icon">🤝</div>
+            <h3>Pendampingan</h3>
+            <p>Peserta mendapatkan ruang untuk menyampaikan masalah usaha dan memperoleh arahan.</p>
+        </div>
+        <div class="card">
+            <div class="icon">🌱</div>
+            <h3>Bertumbuh Bersama</h3>
+            <p>Komunitas menjadi tempat berbagi pengalaman, masalah, solusi, dan peluang kolaborasi.</p>
+        </div>
+    </div>
+</section>
+""")
 
 # ============================================================
 # LAYANAN
 # ============================================================
-
-st.html(
-    """
-<section id="layanan" class="ru-section ru-soft">
-<div class="ru-label">Konsep & Layanan Usaha</div>
-<h2>Layanan yang menghubungkan <em>ilmu dengan praktik.</em></h2>
-<p class="ru-copy">
-Berdasarkan proposal terbaru, Ruang Usaha memiliki lima layanan utama.
-</p>
-"""
-)
-
-services = [
-    (
-        "01",
-        "Kelas Edukasi Bisnis Dasar",
-        "Pencatatan keuangan sederhana, pengelolaan modal, strategi pemasaran, penentuan harga produk, dan perencanaan pengembangan usaha.",
-        "Belajar",
-        True,
-    ),
-    (
-        "02",
-        "Pendampingan & Konsultasi Usaha",
-        "Membantu peserta memahami permasalahan usaha dan menemukan solusi yang sesuai dengan kondisi bisnis masing-masing.",
-        "Pendampingan",
-        False,
-    ),
-    (
-        "03",
-        "Forum Diskusi & Komunitas UMKM",
-        "Ruang untuk berinteraksi, bertukar pengalaman, berbagi strategi, dan belajar dari pelaku usaha lain.",
-        "Berbagi",
-        False,
-    ),
-    (
-        "04",
-        "Pembelajaran Digital & Dokumentasi",
-        "Website, WhatsApp Community, Zoom, YouTube, Instagram, TikTok, dan Facebook mendukung pembelajaran serta dokumentasi.",
-        "Digital",
-        False,
-    ),
-    (
-        "05",
-        "Program Pengembangan Berkelanjutan",
-        "Pendampingan bertahap untuk membantu peserta terus meningkatkan kemampuan dan menghadapi tantangan pengembangan bisnis.",
-        "Bertumbuh",
-        False,
-    ),
-]
-
-service_cols = st.columns(3)
-
-for i, (num, title, desc, tag, featured) in enumerate(services):
-    with service_cols[i % 3]:
-        cls = "ru-service featured" if featured else "ru-service"
-        st.html(
-            f"""
-<div class="{cls}">
-    <div class="ru-service-number">{num}</div>
-    <h3>{title}</h3>
-    <p>{desc}</p>
-    <span class="ru-tag">{tag}</span>
-</div>
-"""
-        )
-
-st.markdown("<br>")
-
-with st.container():
-    st.html(
-        """
-<div class="ru-service">
-    <div class="ru-service-number">SPECIAL SESSION</div>
-    <h3>“Curhat Usaha”</h3>
-    <p>
-    Peserta dapat menceritakan kendala nyata yang sedang dihadapi.
-    Masalah kemudian dibahas bersama berdasarkan materi yang sedang dipelajari,
-    dengan arahan mentor dan pengalaman peserta lain.
-    </p>
-    <span class="ru-tag">Masalah nyata → diskusi → solusi → praktik</span>
-</div>
-"""
-    )
-
-st.markdown("</section>")
-
-
-# ============================================================
-# TARGET PASAR
-# ============================================================
-
-st.html(
-    """
-<section id="target" class="ru-section">
-<div class="ru-label">Target Pasar</div>
-<h2>Untuk siapa <em>Ruang Usaha?</em></h2>
-<p class="ru-copy">
-Target peserta disesuaikan dengan kebutuhan pelaku usaha pada tahap yang berbeda.
-</p>
-"""
-)
-
-targets = [
-    (
-        "UMKM Baru",
-        "Pelaku UMKM yang baru memulai dan membutuhkan dasar pengelolaan keuangan, harga, pemasaran, dan kegiatan usaha.",
-    ),
-    (
-        "UMKM Berkembang",
-        "Usaha yang sudah berjalan tetapi masih menghadapi kendala keuangan, pemasaran, penjualan, atau pengambilan keputusan.",
-    ),
-    (
-        "Belum Memiliki Pencatatan Keuangan",
-        "Pelaku usaha yang belum mencatat transaksi secara teratur atau masih mencampur uang usaha dengan uang pribadi.",
-    ),
-    (
-        "Ingin Meningkatkan Pemasaran",
-        "Pelaku UMKM yang membutuhkan pembelajaran tentang pemasaran, media sosial, konten, dan cara memperkenalkan produk.",
-    ),
-    (
-        "Calon Wirausaha",
-        "Seseorang yang memiliki ide usaha dan ingin memahami hal-hal yang perlu dipersiapkan sebelum memulai bisnis.",
-    ),
-    (
-        "Mahasiswa Berwirausaha",
-        "Mahasiswa yang sedang menjalankan usaha dan membutuhkan pembelajaran maupun pendampingan dalam mengelola bisnis.",
-    ),
-]
-
-target_cols = st.columns(3)
-
-for i, (title, desc) in enumerate(targets):
-    with target_cols[i % 3]:
-        st.html(
-            f"""
-<div class="ru-card">
-    <div class="ru-card-number">TARGET {i+1:02}</div>
-    <h3>{title}</h3>
-    <p>{desc}</p>
-</div>
-"""
-        )
-
-st.markdown("</section>")
-
-
-# ============================================================
-# OPERASIONAL / JADWAL PEMBELAJARAN
-# ============================================================
-
-st.html(
-    """
-<section id="operasional" class="ru-section ru-soft">
-<div class="ru-label">BAB IV • Rencana Operasional</div>
-<h2>Setiap pertemuan: <em>belajar, berbagi, praktik.</em></h2>
-<p class="ru-copy">
-Kegiatan dilakukan secara berkala setiap lima hari sekali. Satu pertemuan memiliki
-satu topik utama yang dapat disesuaikan dengan kebutuhan dan masalah peserta.
-</p>
-"""
-)
-
-steps = [
-    ("01", "Pembukaan & Pengenalan Topik", "Menjelaskan topik, tujuan, dan alasan materi penting bagi usaha."),
-    ("02", "Penyampaian Materi", "Memberikan pemahaman dasar dengan bahasa sederhana dan contoh yang dekat dengan usaha."),
-    ("03", "Curhat Usaha", "Mengidentifikasi kendala nyata yang sedang dihadapi peserta."),
-    ("04", "Diskusi & Berbagi Pengalaman", "Membahas masalah dan solusi bersama mentor serta peserta lain."),
-    ("05", "Praktik Langsung", "Menerapkan materi menggunakan kondisi usaha peserta sendiri."),
-    ("06", "Tanya Jawab", "Menjawab hal-hal yang masih belum dipahami peserta."),
-    ("07", "Evaluasi", "Melihat pemahaman dan perubahan yang telah diterapkan pada usaha."),
-    ("08", "Penutup", "Menyimpulkan materi dan menyampaikan kegiatan berikutnya."),
-]
-
-for no, title, desc in steps:
-    st.html(
-        f"""
-<div class="ru-step">
-    <div class="ru-step-no">{no}</div>
-    <div>
-        <h3>{title}</h3>
-        <p>{desc}</p>
+section_html("""
+<section id="layanan" class="section section-soft">
+    <h2 class="section-title">Layanan <em>Ruang Usaha</em></h2>
+    <p class="section-desc">Layanan disusun untuk menjawab kebutuhan pembelajaran dan pendampingan pelaku usaha.</p>
+    <div class="cards">
+        <div class="card">
+            <div class="icon">📚</div>
+            <h3>Kelas Edukasi Bisnis Dasar</h3>
+            <p>Materi keuangan, pemasaran, penentuan harga, perencanaan, dan pengembangan usaha.</p>
+        </div>
+        <div class="card">
+            <div class="icon">🧑‍🏫</div>
+            <h3>Pendampingan & Konsultasi</h3>
+            <p>Pendampingan disesuaikan dengan kondisi dan kebutuhan usaha peserta.</p>
+        </div>
+        <div class="card">
+            <div class="icon">💬</div>
+            <h3>Forum Diskusi & Komunitas</h3>
+            <p>Ruang untuk berbagi pengalaman, masalah usaha, solusi, dan kolaborasi.</p>
+        </div>
+        <div class="card">
+            <div class="icon">▶️</div>
+            <h3>Pembelajaran Digital & Dokumentasi</h3>
+            <p>Materi dan dokumentasi kegiatan dapat didukung melalui platform digital.</p>
+        </div>
+        <div class="card">
+            <div class="icon">📈</div>
+            <h3>Program Pengembangan Berkelanjutan</h3>
+            <p>Peserta diarahkan untuk melakukan evaluasi dan pengembangan usaha secara berkelanjutan.</p>
+        </div>
+        <div class="card">
+            <div class="icon">🗣️</div>
+            <h3>Curhat Usaha</h3>
+            <p>Sesi untuk menyampaikan kendala usaha dan mendiskusikannya secara langsung.</p>
+        </div>
     </div>
-</div>
-"""
-    )
-
-st.html(
-    """
-<div class="ru-card" style="margin-top:25px;">
-<h3>Contoh praktik yang dilakukan peserta</h3>
-<p>
-✓ Membuat pencatatan keuangan berdasarkan transaksi usaha<br>
-✓ Menghitung kembali biaya produksi<br>
-✓ Menentukan harga jual<br>
-✓ Membuat rencana pemasaran<br>
-✓ Menyusun ide konten media sosial<br>
-✓ Melakukan evaluasi sederhana terhadap usaha
-</p>
-</div>
-"""
-)
-
-st.markdown("</section>")
-
+</section>
+""")
 
 # ============================================================
-# WEBSITE & MEDIA PENDUKUNG
+# TARGET
 # ============================================================
+section_html("""
+<section id="target" class="section">
+    <h2 class="section-title">Target <em>Peserta</em></h2>
+    <p class="section-desc">Ruang Usaha ditujukan untuk peserta yang membutuhkan pembelajaran dan pendampingan usaha.</p>
+    <div class="target-grid">
+        <div class="target-item"><b>01. Mahasiswa yang menjalankan usaha</b><p>Membutuhkan dasar pengelolaan dan pengembangan usaha.</p></div>
+        <div class="target-item"><b>02. UMKM baru memulai usaha</b><p>Membutuhkan fondasi bisnis dan arahan awal.</p></div>
+        <div class="target-item"><b>03. UMKM yang sedang berkembang</b><p>Membutuhkan strategi untuk meningkatkan dan mengembangkan usaha.</p></div>
+        <div class="target-item"><b>04. Usaha tanpa pencatatan keuangan</b><p>Membutuhkan pemahaman pencatatan dan pengelolaan keuangan.</p></div>
+        <div class="target-item"><b>05. UMKM yang ingin meningkatkan pemasaran</b><p>Membutuhkan strategi pemasaran dan pemanfaatan media digital.</p></div>
+        <div class="target-item"><b>06. Calon wirausaha</b><p>Membutuhkan bekal sebelum memulai usaha.</p></div>
+    </div>
+</section>
+""")
 
-st.html(
-    """
-<section id="digital" class="ru-section">
-<div class="ru-label">Website & Media Pendukung</div>
-<h2>Satu ekosistem digital untuk <em>akses yang lebih fleksibel.</em></h2>
-<p class="ru-copy">
-Website menjadi pusat informasi resmi, sementara platform lain memiliki fungsi
-masing-masing dalam komunikasi, pembelajaran, dokumentasi, dan promosi.
-</p>
-"""
-)
+# ============================================================
+# OPERASIONAL / CARA BELAJAR
+# ============================================================
+section_html("""
+<section id="operasional" class="section section-soft">
+    <h2 class="section-title">Cara <em>Pembelajaran</em></h2>
+    <p class="section-desc">
+        Kegiatan dirancang melalui alur pembelajaran yang menggabungkan materi,
+        diskusi, praktik, evaluasi, dan pendampingan.
+    </p>
+    <div class="steps">
+        <div class="step"><div class="step-number">01</div><h3>Pembukaan</h3><p>Pengenalan kegiatan dan tujuan pembelajaran.</p></div>
+        <div class="step"><div class="step-number">02</div><h3>Materi</h3><p>Penyampaian materi bisnis yang relevan.</p></div>
+        <div class="step"><div class="step-number">03</div><h3>Curhat Usaha</h3><p>Peserta menyampaikan kondisi dan kendala usaha.</p></div>
+        <div class="step"><div class="step-number">04</div><h3>Diskusi</h3><p>Membahas masalah dan alternatif solusi.</p></div>
+        <div class="step"><div class="step-number">05</div><h3>Praktik</h3><p>Peserta menerapkan materi secara langsung.</p></div>
+        <div class="step"><div class="step-number">06</div><h3>Tanya Jawab</h3><p>Memperjelas materi dan pengalaman peserta.</p></div>
+        <div class="step"><div class="step-number">07</div><h3>Evaluasi</h3><p>Melihat pemahaman dan hasil praktik.</p></div>
+        <div class="step"><div class="step-number">08</div><h3>Penutup</h3><p>Kesimpulan dan arahan tindak lanjut.</p></div>
+    </div>
+</section>
+""")
 
-digital = [
-    ("🌐", "Website", "Pusat informasi resmi, profil, layanan, jadwal, harga, mentor, dan penghubung ke platform lain.", None),
-    ("💬", "WhatsApp Community", "Komunikasi utama, penyampaian jadwal, diskusi, dan pendampingan setelah kelas.", LINKS["whatsapp"]),
-    ("🎥", "Zoom", "Mendukung pembelajaran dan kegiatan kelas secara daring.", LINKS["zoom"]),
-    ("▶️", "YouTube", "Dokumentasi dan materi pembelajaran agar dapat dipelajari kembali.", LINKS["youtube"]),
-    ("📸", "Instagram", "Jadwal kelas, testimoni, kegiatan, edukasi, dan identitas Ruang Usaha.", LINKS["instagram"]),
-    ("🎵", "TikTok", "Video singkat berupa tips usaha, kesalahan umum, cuplikan kelas, dan program.", LINKS["tiktok"]),
-    ("📘", "Facebook", "Salah satu media promosi untuk menjangkau calon peserta.", LINKS["facebook"]),
-]
+# ============================================================
+# PRAKTIK
+# ============================================================
+section_html("""
+<section class="section">
+    <h2 class="section-title">Contoh <em>Praktik</em></h2>
+    <div class="cards">
+        <div class="card"><div class="icon">🧾</div><h3>Pencatatan Keuangan</h3><p>Latihan mencatat transaksi usaha agar kondisi keuangan lebih mudah dipahami.</p></div>
+        <div class="card"><div class="icon">🧮</div><h3>Biaya Produksi</h3><p>Latihan mengidentifikasi dan menghitung biaya yang berkaitan dengan produk.</p></div>
+        <div class="card"><div class="icon">🏷️</div><h3>Harga Jual</h3><p>Latihan menentukan harga berdasarkan biaya dan pertimbangan usaha.</p></div>
+        <div class="card"><div class="icon">📣</div><h3>Pemasaran</h3><p>Menyusun ide pemasaran dan konten media sosial untuk usaha.</p></div>
+        <div class="card"><div class="icon">📝</div><h3>Rencana Usaha</h3><p>Menyusun ide dan rencana pengembangan usaha.</p></div>
+        <div class="card"><div class="icon">🔍</div><h3>Evaluasi Usaha</h3><p>Meninjau hasil praktik dan menentukan langkah perbaikan.</p></div>
+    </div>
+</section>
+""")
 
-dcols = st.columns(4)
+# ============================================================
+# DIGITAL
+# ============================================================
+section_html("""
+<section id="digital" class="section section-soft">
+    <h2 class="section-title">Ekosistem <em>Digital</em></h2>
+    <p class="section-desc">Platform digital mendukung komunikasi, pembelajaran, dokumentasi, dan promosi Ruang Usaha.</p>
+    <div class="digital-grid">
+        <div class="digital-item"><b>🌐 Website</b><span>Pusat informasi program dan kegiatan Ruang Usaha.</span></div>
+        <div class="digital-item"><b>💬 WhatsApp Community</b><span>Komunikasi peserta, diskusi, dan koordinasi.</span></div>
+        <div class="digital-item"><b>💻 Zoom</b><span>Pembelajaran dan pendampingan secara daring.</span></div>
+        <div class="digital-item"><b>▶️ YouTube</b><span>Dokumentasi kegiatan dan materi pembelajaran.</span></div>
+        <div class="digital-item"><b>📸 Instagram</b><span>Promosi dan edukasi bisnis.</span></div>
+        <div class="digital-item"><b>🎵 TikTok</b><span>Video edukasi singkat dan konten promosi.</span></div>
+        <div class="digital-item"><b>📘 Facebook</b><span>Media informasi dan promosi.</span></div>
+        <div class="digital-item"><b>🤝 Komunitas UMKM</b><span>Jaringan berbagi pengalaman dan kolaborasi.</span></div>
+    </div>
+</section>
+""")
 
-for i, (icon, title, desc, link) in enumerate(digital):
-    with dcols[i % 4]:
-        st.html(
-            f"""
-<div class="ru-digital">
-    <div class="ru-digital-icon">{icon}</div>
-    <h3>{title}</h3>
-    <p>{desc}</p>
-</div>
-"""
-        )
-
-        if link and link != "#":
-            st.link_button(
-                f"Buka {title}",
-                link,
-                use_container_width=True,
-            )
-
-st.markdown("</section>")
-
+# Tombol platform menggunakan URL placeholder yang bisa diganti pemilik usaha.
+st.markdown("### Akses Platform Ruang Usaha")
+c1,c2,c3,c4 = st.columns(4)
+with c1:
+    st.link_button("💬 WhatsApp", "https://wa.me/", use_container_width=True)
+with c2:
+    st.link_button("💻 Zoom", "https://zoom.us/", use_container_width=True)
+with c3:
+    st.link_button("▶️ YouTube", "https://www.youtube.com/", use_container_width=True)
+with c4:
+    st.link_button("📸 Instagram", "https://www.instagram.com/", use_container_width=True)
 
 # ============================================================
 # HARGA
 # ============================================================
-
-st.html(
-    """
-<section id="harga" class="ru-section ru-soft">
-<div class="ru-label">Strategi Harga</div>
-<h2>Pembelajaran yang tetap <em>terjangkau.</em></h2>
-"""
-)
-
-price1, price2 = st.columns(2, gap="large")
-
-with price1:
-    st.html(
-        """
-<div class="ru-price">
-    <div class="ru-label">Harga Normal</div>
-    <div class="ru-price-main">Rp150.000</div>
-    <div class="ru-price-note">
-        Kisaran biaya per peserta/per kegiatan, dapat disesuaikan
-        dengan jenis materi, kegiatan, dan bentuk pendampingan.
+section_html("""
+<section id="harga" class="section">
+    <h2 class="section-title">Harga & <em>Promo</em></h2>
+    <div class="price-box">
+        <div class="price-grid">
+            <div>
+                <div class="price-label">Harga Normal</div>
+                <div class="price-main">Rp150.000</div>
+                <div class="price-note">
+                    <b>DISKON 30% UNTUK 50 PESERTA PERTAMA</b><br>
+                    Promo pengguna awal sesuai ketentuan dalam proposal.
+                </div>
+            </div>
+            <div class="price-side">
+                <h3>🎉 Promo Pengguna Awal</h3>
+                <p>
+                    Program memberikan diskon <b>30%</b> untuk
+                    <b>50 peserta pertama</b>. Harga normal yang dicantumkan
+                    dalam proposal adalah <b>Rp150.000</b>.
+                </p>
+                <p>
+                    Catatan: proposal juga mencantumkan angka Rp50.000 sebagai
+                    harga promo. Angka tersebut dipertahankan sebagai informasi
+                    dokumen, meskipun secara hitungan Rp150.000 dikurangi 30%
+                    menghasilkan Rp105.000.
+                </p>
+            </div>
+        </div>
     </div>
-</div>
-"""
-    )
-
-with price2:
-    st.html(
-        """
-<div class="ru-price">
-    <div class="ru-label">Promo Pengguna Awal</div>
-    <div class="ru-price-main">DISKON 30%</div>
-    <div class="ru-price-note">
-        Promo khusus untuk <b>50 peserta pertama</b> yang menggunakan
-        aplikasi/program Ruang Usaha.<br><br>
-        Harga normal: <b>Rp150.000</b><br>
-        Harga promo yang tercantum dalam proposal: <b>Rp50.000</b>
-    </div>
-</div>
-"""
-    )
-
-st.html(
-    """
-<div class="ru-card" style="margin-top:20px;">
-<h3>Promo pengguna awal</h3>
-<p>
-Proposal menetapkan <b>diskon 30% untuk 50 peserta pertama</b>. Proposal juga mencantumkan harga promo <b>Rp50.000</b> dari harga normal Rp150.000; angka tersebut ditampilkan apa adanya sesuai dokumen proposal.<br><br>
-Harga mempertimbangkan kemampuan pelaku UMKM, biaya penyelenggaraan kegiatan,
-materi dan pendampingan, kebutuhan keberlanjutan usaha, serta tujuan agar
-pembelajaran dapat diakses oleh lebih banyak pelaku UMKM.
-</p>
-</div>
-"""
-)
-
-st.markdown("</section>")
-
-
-# ============================================================
-# KEUNGGULAN
-# ============================================================
-
-st.html(
-    """
-<section class="ru-section">
-<div class="ru-label">Keunggulan Ruang Usaha</div>
-<h2>Lebih dari sekadar <em>pelatihan bisnis.</em></h2>
-"""
-)
-
-advantages = [
-    ("Praktik Langsung", "Peserta menerapkan materi pada kondisi usaha sendiri."),
-    ("Curhat Usaha", "Kendala nyata peserta menjadi bagian dari proses pembelajaran."),
-    ("Komunitas", "Peserta belajar dari mentor sekaligus pengalaman pelaku usaha lain."),
-    ("Fleksibel", "Website dan berbagai platform digital mendukung akses lintas lokasi."),
-    ("Pendampingan Bertahap", "Hubungan dengan peserta dapat berlanjut setelah satu kegiatan."),
-    ("Terjangkau", "Harga dirancang agar lebih mudah dijangkau oleh UMKM."),
-]
-
-acols = st.columns(3)
-
-for i, (title, desc) in enumerate(advantages):
-    with acols[i % 3]:
-        st.html(
-            f"""
-<div class="ru-card">
-    <div class="ru-card-number">{i+1:02}</div>
-    <h3>{title}</h3>
-    <p>{desc}</p>
-</div>
-"""
-        )
-
-st.markdown("</section>")
-
-
-# ============================================================
-# STRUKTUR ORGANISASI
-# ============================================================
-
-st.html(
-    """
-<section class="ru-section ru-soft">
-<div class="ru-label">Struktur Organisasi</div>
-<h2>Tim sederhana, fungsi tetap <em>jelas.</em></h2>
-<p class="ru-copy">
-Pada tahap awal, struktur dibuat sederhana untuk menjaga efisiensi biaya.
-Tiga fungsi utama menjalankan pengelolaan, pembelajaran, serta operasional dan digital.
-</p>
-"""
-)
-
-orgs = [
-    (
-        "01",
-        "Pengelola Utama",
-        "Menentukan arah usaha, mengambil keputusan, mengawasi kegiatan, menyusun pengembangan, membangun hubungan eksternal, dan mengevaluasi jumlah pengguna, kepuasan, keuangan, serta efektivitas program.",
-    ),
-    (
-        "02",
-        "Tim Pembelajaran & Pendampingan",
-        "Menyiapkan materi, menjalankan kelas, mendampingi peserta, mengelola diskusi, Curhat Usaha, praktik, dan membangun suasana belajar interaktif.",
-    ),
-    (
-        "03",
-        "Tim Operasional & Digital",
-        "Mengelola data peserta, pendaftaran, jadwal, pembayaran, pencatatan keuangan, website/aplikasi, media sosial, dokumentasi, dan informasi peserta.",
-    ),
-]
-
-ocols = st.columns(3)
-
-for col, (num, title, desc) in zip(ocols, orgs):
-    with col:
-        st.html(
-            f"""
-<div class="ru-card">
-    <div class="ru-card-number">{num}</div>
-    <h3>{title}</h3>
-    <p>{desc}</p>
-</div>
-"""
-        )
-
-st.markdown("</section>")
-
-
-# ============================================================
-# CTA
-# ============================================================
-
-st.html(
-    """
-<section class="ru-section">
-<div class="ru-cta">
-<div class="ru-label">Mulai Bersama</div>
-<h2>Bangun usaha lebih <em>terarah.</em></h2>
-<p class="ru-copy">
-Belajar dari dasar, bawa masalah usaha ke dalam diskusi,
-praktikkan materi, dan berkembang bersama komunitas Ruang Usaha.
-</p>
-</div>
 </section>
-"""
-)
+""")
 
-c1, c2, c3 = st.columns(3)
-
-with c1:
-    st.link_button(
-        "💬 Gabung WhatsApp Community",
-        LINKS["whatsapp"],
-        use_container_width=True,
-    )
-
-with c2:
-    st.link_button(
-        "▶️ Lihat YouTube",
-        LINKS["youtube"],
-        use_container_width=True,
-    )
-
-with c3:
-    st.link_button(
-        "📸 Instagram",
-        LINKS["instagram"],
-        use_container_width=True,
-    )
-
-with c4:
-    st.link_button(
-        "▶️ Zoom",
-        LINKS["zoom"],
-        use_container_width=True,
-    )
+# ============================================================
+# ORGANISASI
+# ============================================================
+section_html("""
+<section class="section">
+    <h2 class="section-title">Tim <em>Pengelola</em></h2>
+    <div class="cards">
+        <div class="card"><div class="icon">👤</div><h3>Pengelola Utama</h3><p>Mengatur arah program, koordinasi, keputusan, dan keberlangsungan Ruang Usaha.</p></div>
+        <div class="card"><div class="icon">🧑‍🏫</div><h3>Tim Pembelajaran & Pendampingan</h3><p>Menyiapkan materi, pelaksanaan kelas, pendampingan, dan evaluasi pembelajaran.</p></div>
+        <div class="card"><div class="icon">💻</div><h3>Tim Operasional & Digital</h3><p>Mendukung administrasi kegiatan serta pengelolaan platform digital dan komunikasi.</p></div>
+    </div>
+</section>
+""")
 
 # ============================================================
 # FOOTER
 # ============================================================
-
-unimed = (
-    f'<img class="ru-footer-unimed" src="{LOGO_UNIMED}" alt="Logo UNIMED">'
-    if LOGO_UNIMED
-    else ""
+unimed_html = (
+    f'<img src="{LOGO_UNIMED}" alt="Logo UNIMED">'
+    if LOGO_UNIMED else ""
 )
-
-st.html(
-    f"""
-<footer class="ru-footer">
-
-<div class="ru-footer-brand">
-    {logo}
-    <div>
-        <h3>Ruang Usaha</h3>
-        <p>Belajar, Berbagi, dan Bertumbuh Bersama.</p>
+section_html(f"""
+<div class="footer">
+    <div class="footer-brand">
+        <div class="footer-logos">
+            {logo_html}
+            {unimed_html}
+        </div>
+        <div>
+            <b>Ruang Usaha</b><br>
+            <span>Belajar, Berbagi, dan Bertumbuh Bersama.</span><br>
+            <small>Platform pembelajaran dan pendampingan UMKM.</small>
+        </div>
     </div>
 </div>
-
-<div style="margin-top:22px;">
-    {unimed}
-</div>
-
-<p style="margin-top:22px;">
-Jasa layanan kelas dan pendampingan bisnis bagi pelaku UMKM dan calon wirausaha.
-</p>
-
-<div class="ru-footer-bottom">
-© 2026 Ruang Usaha • Universitas Negeri Medan • Kelompok 3
-</div>
-
-</footer>
-"""
-)
+""")
