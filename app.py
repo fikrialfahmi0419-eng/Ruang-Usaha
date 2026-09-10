@@ -435,71 +435,259 @@ section_html(f"""
 # ============================================================
 # LOGIN / DAFTAR
 # ============================================================
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "user_name" not in st.session_state:
-    st.session_state.user_name = ""
+# ============================================================
+# LOGIN & REGISTER PESERTA
+# ============================================================
 
-with st.expander(
-    "👤 " + (
-        f"Peserta: {st.session_state.user_name}"
-        if st.session_state.logged_in
-        else "Login / Daftar Peserta"
+st.markdown(
+    """
+    <div style="
+        margin-top: 30px;
+        margin-bottom: 20px;
+        text-align: center;
+    ">
+        <div style="
+            display:inline-block;
+            padding:8px 14px;
+            border-radius:999px;
+            background:#e8f1ec;
+            color:#174d40;
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:.06em;
+            text-transform:uppercase;
+        ">
+            Area Peserta
+        </div>
+
+        <h2 style="
+            color:#174d40;
+            font-family:'Plus Jakarta Sans',sans-serif;
+            margin:12px 0 6px;
+        ">
+            Bergabung Bersama Ruang Usaha
+        </h2>
+
+        <p style="
+            color:#68746f;
+            font-size:14px;
+            margin:0;
+        ">
+            Masuk untuk mengikuti program atau daftar sebagai peserta baru.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+login_col, register_col = st.columns(2, gap="large")
+
+# ============================================================
+# LOGIN
+# ============================================================
+
+with login_col:
+
+    st.markdown(
+        """
+        <div style="
+            background:#ffffff;
+            border:1px solid #deddd4;
+            border-radius:20px;
+            padding:25px;
+            margin-bottom:15px;
+        ">
+            <div style="font-size:28px;">🔐</div>
+
+            <h3 style="
+                color:#174d40;
+                margin:8px 0 5px;
+            ">
+                Login Peserta
+            </h3>
+
+            <p style="
+                color:#68746f;
+                font-size:13px;
+                margin:0;
+            ">
+                Sudah memiliki akun? Silakan masuk.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-):
-    if st.session_state.logged_in:
-        st.success(f"Selamat datang, {st.session_state.user_name}!")
-        st.caption(
-            "Login pada versi ini masih berupa simulasi. "
-            "Untuk akun permanen diperlukan database."
+
+    with st.form("login_form"):
+
+        login_identity = st.text_input(
+            "Email / Nomor WhatsApp",
+            placeholder="Masukkan email atau nomor WhatsApp"
         )
-        if st.button("Keluar", use_container_width=True):
-            st.session_state.logged_in = False
-            st.session_state.user_name = ""
-            st.rerun()
-    else:
-        mode = st.radio("Akun", ["Login", "Daftar"], horizontal=True)
-        if mode == "Login":
-            identity = st.text_input("Email / Nomor WhatsApp")
-            password = st.text_input("Kata Sandi", type="password")
-            if st.button("🔐 Masuk", use_container_width=True):
-                if not identity.strip():
-                    st.error("Email atau nomor WhatsApp wajib diisi.")
-                elif len(password) < 6:
-                    st.error("Kata sandi minimal 6 karakter.")
-                else:
-                    st.session_state.logged_in = True
-                    st.session_state.user_name = identity.split("@")[0]
-                    st.rerun()
-        else:
-            name = st.text_input("Nama Lengkap")
-            participant = st.selectbox(
-                "Kategori Peserta",
-                [
-                    "Mahasiswa yang sedang menjalankan usaha",
-                    "UMKM baru memulai usaha",
-                    "UMKM yang sedang mengembangkan usaha",
-                    "Pelaku usaha yang belum memiliki pencatatan keuangan",
-                    "UMKM yang ingin meningkatkan pemasaran",
-                    "Calon wirausaha",
-                ],
+
+        login_password = st.text_input(
+            "Kata Sandi",
+            type="password",
+            placeholder="Masukkan kata sandi"
+        )
+
+        login_remember = st.checkbox(
+            "Ingat saya"
+        )
+
+        login_button = st.form_submit_button(
+            "🔐 Masuk ke Ruang Usaha",
+            use_container_width=True
+        )
+
+    if login_button:
+
+        if not login_identity.strip():
+            st.error(
+                "Email atau nomor WhatsApp wajib diisi."
             )
-            email = st.text_input("Email")
-            whatsapp = st.text_input("Nomor WhatsApp")
-            password = st.text_input("Kata Sandi", type="password")
-            agreement = st.checkbox("Saya menyetujui pendaftaran Ruang Usaha.")
-            if st.button("🚀 Daftar", use_container_width=True):
-                if not name.strip() or not email.strip() or not whatsapp.strip():
-                    st.error("Nama, email, dan nomor WhatsApp wajib diisi.")
-                elif len(password) < 6:
-                    st.error("Kata sandi minimal 6 karakter.")
-                elif not agreement:
-                    st.warning("Centang persetujuan pendaftaran terlebih dahulu.")
-                else:
-                    st.session_state.logged_in = True
-                    st.session_state.user_name = name
-                    st.success(f"Pendaftaran berhasil. Selamat datang, {name}!")
-                    st.rerun()
+
+        elif len(login_password) < 6:
+            st.error(
+                "Kata sandi minimal 6 karakter."
+            )
+
+        else:
+
+            st.session_state.logged_in = True
+
+            st.session_state.user_name = (
+                login_identity.split("@")[0]
+            )
+
+            st.success(
+                f"Selamat datang di Ruang Usaha, "
+                f"{st.session_state.user_name}! 👋"
+            )
+
+            st.rerun()
+
+
+# ============================================================
+# REGISTER
+# ============================================================
+
+with register_col:
+
+    st.markdown(
+        """
+        <div style="
+            background:#174d40;
+            border-radius:20px;
+            padding:25px;
+            margin-bottom:15px;
+        ">
+            <div style="font-size:28px;">🚀</div>
+
+            <h3 style="
+                color:#ffffff;
+                margin:8px 0 5px;
+            ">
+                Daftar Peserta
+            </h3>
+
+            <p style="
+                color:#dce9e4;
+                font-size:13px;
+                margin:0;
+            ">
+                Belum punya akun? Daftar sekarang.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    with st.form("register_form"):
+
+        register_name = st.text_input(
+            "Nama Lengkap",
+            placeholder="Masukkan nama lengkap"
+        )
+
+        register_category = st.selectbox(
+            "Kategori Peserta",
+            [
+                "Mahasiswa yang sedang menjalankan usaha",
+                "UMKM baru memulai usaha",
+                "UMKM yang sedang mengembangkan usaha",
+                "Pelaku usaha yang belum memiliki pencatatan keuangan",
+                "UMKM yang ingin meningkatkan pemasaran",
+                "Calon wirausaha",
+            ]
+        )
+
+        register_email = st.text_input(
+            "Email",
+            placeholder="contoh@email.com"
+        )
+
+        register_whatsapp = st.text_input(
+            "Nomor WhatsApp",
+            placeholder="08xxxxxxxxxx"
+        )
+
+        register_password = st.text_input(
+            "Kata Sandi",
+            type="password",
+            placeholder="Minimal 6 karakter"
+        )
+
+        register_agree = st.checkbox(
+            "Saya menyetujui pendaftaran Ruang Usaha."
+        )
+
+        register_button = st.form_submit_button(
+            "🚀 Buat Akun Peserta",
+            use_container_width=True
+        )
+
+    if register_button:
+
+        if len(register_name.strip()) < 3:
+            st.error(
+                "Nama lengkap wajib diisi."
+            )
+
+        elif "@" not in register_email:
+            st.error(
+                "Masukkan email yang valid."
+            )
+
+        elif len(register_whatsapp.strip()) < 9:
+            st.error(
+                "Nomor WhatsApp belum valid."
+            )
+
+        elif len(register_password) < 6:
+            st.error(
+                "Kata sandi minimal 6 karakter."
+            )
+
+        elif not register_agree:
+            st.warning(
+                "Silakan centang persetujuan pendaftaran."
+            )
+
+        else:
+
+            st.session_state.logged_in = True
+
+            st.session_state.user_name = (
+                register_name.strip()
+            )
+
+            st.success(
+                f"Pendaftaran berhasil. "
+                f"Selamat datang, {register_name.strip()}! 🎉"
+            )
+
+            st.rerun()
 
 # ============================================================
 # HERO
