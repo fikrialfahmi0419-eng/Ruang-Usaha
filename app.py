@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).parent
 
 LINKS = {
     "whatsapp": "https://chat.whatsapp.com/Bew1bpB1vxYGge8z1PMmrX",
-    "zoom": "https://zoom.us/",
-    "youtube": "https://youtube.com/",
-    "instagram": "https://instagram.com/",
+    "zoom": "https://us05web.zoom.us/j/3799765498?pwd=Y16zpswb0ymqkgTa1U46jCrn4YlVkX.1",
+    "youtube": "https://youtube.com/@ruangusaha-q1g?si=jITpG2S7u1uLwUE1",
+    "instagram": "https://www.instagram.com/ruangusaha_109?stkn=MWNtaHY0ZWN4YXdhYw==",
     "tiktok": "https://tiktok.com/",
     "facebook": "https://facebook.com/",
 }
@@ -757,8 +757,7 @@ section, .hero, #profil, #layanan, #target, #operasional, #digital, #harga {
     scroll-margin-top: 30px;
 }
 </style>
-""",
-    unsafe_allow_html=True,
+"""
 )
 
 
@@ -1011,7 +1010,7 @@ if st.session_state.logged_in:
 # HERO
 # ============================================================
 
-st.html('<section id="beranda" class="ru-hero">', unsafe_allow_html=True)
+st.html('<section id="beranda" class="ru-hero">')
 
 c1, c2 = st.columns([1.5, .8], gap="large")
 
@@ -1052,7 +1051,7 @@ with c2:
             unsafe_allow_html=True,
         )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1100,8 +1099,7 @@ with a1:
     st.markdown(
         """
 <h2>Wadah belajar yang <em>dekat dengan masalah nyata.</em></h2>
-""",
-        unsafe_allow_html=True,
+"""
     )
 
 with a2:
@@ -1126,7 +1124,7 @@ Curhat Usaha, dan komunitas</b>, dengan dukungan teknologi digital.
 """
     )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 p1, p2, p3 = st.columns(3)
 
@@ -1232,7 +1230,7 @@ for i, (num, title, desc, tag, featured) in enumerate(services):
             unsafe_allow_html=True,
         )
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<br>")
 
 with st.container():
     st.html(
@@ -1250,7 +1248,7 @@ with st.container():
 """
     )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1310,7 +1308,7 @@ for i, (title, desc) in enumerate(targets):
             unsafe_allow_html=True,
         )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1369,7 +1367,7 @@ st.html(
 """
 )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1420,7 +1418,7 @@ for i, (icon, title, desc, link) in enumerate(digital):
                 use_container_width=True,
             )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1481,7 +1479,7 @@ pembelajaran dapat diakses oleh lebih banyak pelaku UMKM.
 """
 )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1520,7 +1518,7 @@ for i, (title, desc) in enumerate(advantages):
             unsafe_allow_html=True,
         )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1572,7 +1570,7 @@ for col, (num, title, desc) in zip(ocols, orgs):
             unsafe_allow_html=True,
         )
 
-st.markdown("</section>", unsafe_allow_html=True)
+st.markdown("</section>")
 
 
 # ============================================================
@@ -1599,28 +1597,28 @@ c1, c2, c3 = st.columns(3)
 with c1:
     st.link_button(
         "💬 Gabung WhatsApp Community",
-        LINKS["https://chat.whatsapp.com/Bew1bpB1vxYGge8z1PMmrX"],
+        LINKS["whatsapp"],
         use_container_width=True,
     )
 
 with c2:
     st.link_button(
         "▶️ Lihat YouTube",
-        LINKS["https://youtube.com/@ruangusaha-q1g?si=jITpG2S7u1uLwUE1"],
+        LINKS["youtube"],
         use_container_width=True,
     )
 
 with c3:
     st.link_button(
         "📸 Instagram",
-        LINKS["https://www.instagram.com/ruangusaha_109?stkn=MWNtaHY0ZWN4YXdhYw=="],
+        LINKS["instagram"],
         use_container_width=True,
     )
 
 with c4:
     st.link_button(
         "▶️ Zoom",
-        LINKS["https://us05web.zoom.us/j/3799765498?pwd=Y16zpswb0ymqkgTa1U46jCrn4YlVkX.1"],
+        LINKS["zoom"],
         use_container_width=True,
     )
 
